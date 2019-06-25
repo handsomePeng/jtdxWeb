@@ -9,5 +9,6 @@ let api = {
   getUserList: apiPrefix + '/user/getUserList' + apiNexfix, //获取用户列表
   billsAdd: apiPrefix + '/bills/add' + apiNexfix, //新增账单数据
   billsClose: apiPrefix + '/bills/close' + apiNexfix, //结算当前所有未结算的账单
+  queryBillList: apiPrefix + '/bills/queryBillList' + apiNexfix, //查询账单列表
 }
 export default api

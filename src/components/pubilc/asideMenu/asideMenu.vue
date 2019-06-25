@@ -8,13 +8,13 @@
       background-color="#545c64"
       text-color="#fff"
       active-text-color="#ffd04b">
-      <el-menu-item index="2" disabled>
+      <el-menu-item index="2" @click="pushRouter('index')">
         <i class="el-icon-menu"></i>
-        <span slot="title">新建账单</span>
+        <span slot="title">系统首页</span>
       </el-menu-item>
-      <el-menu-item index="3" disabled>
+      <el-menu-item index="3" @click="pushRouter('billList')">
         <i class="el-icon-document"></i>
-        <span slot="title">结算账单</span>
+        <span slot="title">账单列表</span>
       </el-menu-item>
     </el-menu>
   </div>
@@ -39,6 +39,9 @@
       handleClose(key, keyPath) {
         console.log(key, keyPath);
       },
+      pushRouter: function (name) {
+        this.$router.push({name: name})
+      }
 
     }
   }

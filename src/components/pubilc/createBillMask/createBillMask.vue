@@ -11,7 +11,10 @@
             <el-input v-model="form.num"></el-input>
           </el-form-item>
           <el-form-item label="花费日期" prop="date">
-            <el-date-picker type="date" placeholder="选择日期" v-model="form.date" style="width: 100%;"></el-date-picker>
+            <el-date-picker
+              type="date"
+              value-format="yyyy-MM-DD"
+              placeholder="选择日期" v-model="form.date" style="width: 100%;"></el-date-picker>
           </el-form-item>
           <el-form-item label="账单分担" prop="sharer">
             <el-checkbox-group v-model="form.sharer">
@@ -57,7 +60,7 @@
         rules: {
           num: [{required: true, message: '账单金额不能为空！', trigger: 'submit' },
             {validator: checkMoney, trigger: 'submit' }],
-          date: [{ type: 'date', required: true, message: '请选择日期', trigger: 'change' }],
+          date: [{ type: 'string', required: true, message: '请选择日期', trigger: 'submit' }],
           sharer: [{ type: 'array', required: true, message: '请至少选择一个账单分担者', trigger: 'submit' }]
         },
         userList: []
