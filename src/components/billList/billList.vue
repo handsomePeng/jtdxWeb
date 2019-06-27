@@ -1,6 +1,9 @@
 <template>
   <div class="content">
-    <p class="content-title">账单列表</p>
+    <div class="content-title">
+      <span>账单列表</span>
+      <el-button type="text" style="float: right;" class="create"  @click="openCreateMask">新建账单</el-button>
+    </div>
     <div class="option">
       <formOption
         :form="params"
@@ -20,14 +23,21 @@
           label="支付人"
           align="center"
           header-align="center"
-          min-width="94">
+          min-width="80">
+        </el-table-column>
+        <el-table-column
+          prop="num"
+          label="金额"
+          align="center"
+          header-align="center"
+          min-width="80">
         </el-table-column>
         <el-table-column
           align="center"
           label="承担人"
           prop="sharer"
           show-overflow-tooltip
-          min-width="120">
+          min-width="140">
           <template slot-scope="scope">
             <span> {{ scope.row.sharer.join(',') }} </span>
           </template>
@@ -37,14 +47,20 @@
           show-overflow-tooltip
           label="备注"
           align="center"
-          min-width="120">
+          min-width="150">
         </el-table-column>
         <el-table-column
           prop="changer"
           show-overflow-tooltip
           label="结算人"
           align="center"
-          min-width="120">
+          min-width="80">
+        </el-table-column>
+        <el-table-column
+          prop="createTime"
+          label="录入时间"
+          align="center"
+          min-width="170">
         </el-table-column>
         <el-table-column
           prop="date"
@@ -56,22 +72,24 @@
           prop="status"
           show-overflow-tooltip
           label="状态"
+          fixed="right"
           align="center"
           min-width="80">
           <template slot-scope="scope">
             <p v-if="scope.row.status">已结算</p>
-            <p v-else>未结算</p>
+            <p v-else style="color: #ff6169">未结算</p>
           </template>
         </el-table-column>
         <el-table-column
+          prop="status"
           fixed="right"
-          prop="operator"
+          show-overflow-tooltip
           label="操作"
           align="center"
-          min-width="100">
+          min-width="80">
           <template slot-scope="scope">
-            <el-button type="text" @click="showEditMask(scope.row)">修改</el-button>
-            <el-button type="text" class="delete" @click="showDeleteMask(scope.row)">删除</el-button>
+            <el-button type="text" v-if="scope.row.status" disabled>修改</el-button>
+            <el-button type="text" v-else @click="openEditMask(scope.row)">修改</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -90,19 +108,30 @@
         </el-pagination>
       </div>
     </div>
+    <createBillMask
+      v-if="isShowCreateMask"
+      :id="currentEditId"
+      v-on:cancel="closeCreateMask"
+      v-on:submit="updateSuccessCallback"
+      v-on:update="updateSuccessCallback"
+    ></createBillMask>
   </div>
 </template>
 
 <script>
   import qs from 'qs'
   import formOption from './../pubilc/formOption/formOption'
+  import createBillMask from './../pubilc/createBillMask/createBillMask'
   export default {
     name: "billList",
     components: {
-      formOption
+      formOption,
+      createBillMask
     },
     data () {
       return {
+        isShowCreateMask: false,
+        currentEditId: undefined,
         form: {
           payer: undefined,
           sharer: undefined,
@@ -175,7 +204,7 @@
       }
     },
     methods: {
-      //搜索数据
+      // 搜索数据
       searchData: function () {
         let params = {...this.form}
         this.$axios.post(this.$api.queryBillList, qs.stringify({...params})).then(res => {
@@ -187,7 +216,7 @@
           }
         })
       },
-      //分页请求数据
+      // 分页请求数据
       updateData: function () {
         let params = {...this.form}
         params.currPage = this.currPage
@@ -198,7 +227,7 @@
           }
         })
       },
-      //获取商品订单查询参数(点击查询)
+      // 获取商品订单查询参数(点击查询)
       getParams: function (data) {
         data.map((item, index) => {
           //如果是日期类型，是一个数组，需要拆分成两个参数
@@ -211,16 +240,36 @@
         })
         this.searchData()
       },
-      //调整每页条数
+      // 调整每页条数
       handleSizeChange: function (val) {
         this.pageSize = val
         this.updateData()
       },
-      //跳转至某页
+      // 跳转至某页
       handleCurrentChange: function (val) {
         this.currPage = val
         this.updateData()
       },
+      // 关闭新建/修改账单弹窗
+      closeCreateMask: function () {
+        this.isShowCreateMask = false
+        this.currentEditId = undefined
+      },
+      // 打开新建账单弹窗
+      openCreateMask: function () {
+        this.isShowCreateMask = true
+        this.currentEditId = undefined
+      },
+      // 打开修改账单弹窗
+      openEditMask: function (item) {
+        this.isShowCreateMask = true
+        this.currentEditId = item._id
+      },
+      // 新建、修改成功后的回调
+      updateSuccessCallback: function () {
+        this.closeCreateMask()
+        this.updateData()
+      }
     },
     created: function () {
       this.searchData()

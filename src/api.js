@@ -10,5 +10,7 @@ let api = {
   billsAdd: apiPrefix + '/bills/add' + apiNexfix, //新增账单数据
   billsClose: apiPrefix + '/bills/close' + apiNexfix, //结算当前所有未结算的账单
   queryBillList: apiPrefix + '/bills/queryBillList' + apiNexfix, //查询账单列表
+  billDetail: apiPrefix + '/bills/detail' + apiNexfix, // 查询账单详情
+  billsUpdate: apiPrefix + '/bills/update' + apiNexfix, // 修改账单
 }
 export default api

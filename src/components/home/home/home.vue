@@ -3,18 +3,13 @@
     <div class="module-main">
       <div class="module-top">
         <p class="module-title">数据汇总</p>
-        <el-button type="text" class="create"  @click="openCreateMask">新建账单</el-button>
+
         <el-button type="text" class="close"  @click="openConfirmMask">结算账单</el-button>
       </div>
       <div class="module-content">
         <sum-data v-if="isShowSumData"></sum-data>
       </div>
     </div>
-    <createBillMask
-      v-if="isShowCreateMask"
-      v-on:cancel="closeCreateMask"
-      v-on:submit="reFleshSumData"
-    ></createBillMask>
     <confirmMask
       title="确定结算当前所有未结算账单吗？"
       v-if="isShowConfirmMask"
@@ -26,13 +21,11 @@
 
 <script>
   import sumData from './../sumData/sumData'
-  import createBillMask from './../../pubilc/createBillMask/createBillMask'
   import confirmMask from './../../pubilc/confirmMask/confirmMask'
   export default {
     name: "home",
     components: {
       sumData: sumData,
-      createBillMask: createBillMask,
       confirmMask: confirmMask,
     },
     data () {
@@ -40,16 +33,9 @@
         isShowCreateMask: false,
         isShowConfirmMask: false,
         isShowSumData: true
-
       }
     },
     methods: {
-      closeCreateMask: function () {
-        this.isShowCreateMask = false
-      },
-      openCreateMask: function () {
-        this.isShowCreateMask = true
-      },
       reFleshSumData: function () {
         this.isShowSumData = false
         this.$nextTick(() => (this.isShowSumData = true))

@@ -2,7 +2,8 @@
   <div class="mask">
     <div class="center">
       <div class="title-box clearfix">
-        <span class="title">新建账单</span>
+        <span class="title" v-if="billId == undefined">新建账单</span>
+        <span class="title" v-else>修改账单</span>
         <i class="el-icon-close close" @click="onCancel"></i>
       </div>
       <div class="mask-content">
@@ -13,7 +14,7 @@
           <el-form-item label="花费日期" prop="date">
             <el-date-picker
               type="date"
-              value-format="yyyy-MM-DD"
+              value-format="yyyy-MM-dd"
               placeholder="选择日期" v-model="form.date" style="width: 100%;"></el-date-picker>
           </el-form-item>
           <el-form-item label="账单分担" prop="sharer">
@@ -25,7 +26,8 @@
             <el-input type="textarea" v-model="form.remark"></el-input>
           </el-form-item>
           <div class="btn-box">
-            <el-button type="primary" class="btn" @click="onSubmit('form')">确定</el-button>
+            <el-button type="primary" class="btn" @click="onSubmit('form')" v-if="billId == undefined">确定</el-button>
+            <el-button type="primary" class="btn" @click="onUpdate('form')" v-else>保存</el-button>
             <el-button class="btn cancel-btn" @click="onCancel">取消</el-button>
           </div>
         </el-form>
@@ -38,6 +40,12 @@
   import qs from 'qs'
   export default {
     name: "createBillMask",
+    props: {
+      id: {
+        type: String,
+        default: undefined
+      }
+    },
     data () {
       var isFloatNumber = (val) => {
         let exp = new RegExp('^(([1-9]{1}\\d*)|(0{1}))(\\.\\d{0,2})?$')
@@ -51,6 +59,7 @@
         }
       };
       return {
+        billId: this.id,
         form: {
           num: undefined,
           date: undefined,
@@ -94,10 +103,36 @@
           }
         })
       },
+      onUpdate: function (formName) {
+        this.$refs[formName].validate((valid) => {
+          if (valid) {
+            let params = {}
+            params.id = this.billId
+            params.num = this.form.num
+            params.date = this.form.date
+            params.remark = this.form.remark
+            params.sharer = this.form.sharer.join(',')
+            this.$axios.post(this.$api.billsUpdate, qs.stringify(params)).then(res => {
+              if (res.data.code == 1000) {
+                this.$notify({
+                  title: '成功',
+                  message: '修改成功',
+                  type: 'success'
+                })
+                this.$emit('update')
+              }
+              this.$emit('cancel')
+            })
+          } else {
+            return false
+          }
+        })
+      },
       //移除表单验证效果
       clearValidateField () {
         this.$refs['user'].clearValidate()
       },
+      //获取用户列表
       getUserList: function () {
         this.$axios.get(this.$api.getUserList).then(res => {
           if (res.data.code == 1000){
@@ -106,13 +141,31 @@
             this.userList.map((item, index) =>{
               defaultSharer.push(item.name)
             })
-            this.$set(this.form, 'sharer', defaultSharer)
+            if (this.billId == undefined){
+              this.$set(this.form, 'sharer', defaultSharer)
+            }
+          }
+        })
+      },
+      // 初始化详情
+      initData: function () {
+        this.$axios.get(this.$api.billDetail, {params: {id: this.billId}}).then(res => {
+          if (res.data.code == 1000) {
+            this.$set(this.form, 'num', res.data.data.num)
+            this.$set(this.form, 'date', res.data.data.date)
+            this.$set(this.form, 'sharer', [...res.data.data.sharer])
+            this.$set(this.form, 'remark',res.data.data.remark)
           }
         })
       }
     },
     created: function () {
       this.getUserList()
+    },
+    mounted: function () {
+      if (this.billId != undefined) {
+        this.initData()
+      }
     }
   }
 </script>
